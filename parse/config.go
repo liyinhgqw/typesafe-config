@@ -41,7 +41,7 @@ func (c *Config) GetString(path string) (val string, err error) {
     }
     if conf.root.Type() == NodeString {
         if cstr, ok := conf.root.(*StringNode); ok {
-            val = cstr.Quoted
+            val = cstr.Text
         } else {
             err = errors.New("not valid string: " + cstr.String())
         }
@@ -49,6 +49,14 @@ func (c *Config) GetString(path string) (val string, err error) {
         err = errors.New("not valid string: " + path)
     }
     return
+}
+
+func (c *Config) GetDefaultString(path string, defaultVal string) string {
+    val, err := c.GetString(path)
+    if err != nil {
+        return defaultVal
+    }
+    return val
 }
 
 func (c *Config) GetBool(path string) (val bool, err error) {
@@ -66,6 +74,14 @@ func (c *Config) GetBool(path string) (val bool, err error) {
         err = errors.New("not valid bool: " + path)
     }
     return
+}
+
+func (c *Config) GetDefaultBool(path string, defaultVal bool) bool {
+    val, err := c.GetBool(path)
+    if err != nil {
+        return defaultVal
+    }
+    return val
 }
 
 func (c *Config) GetInt(path string) (val int64, err error) {
@@ -90,6 +106,14 @@ func (c *Config) GetInt(path string) (val int64, err error) {
     return
 }
 
+func (c *Config) GetDefaultInt(path string, defaultVal int64) int64 {
+    val, err := c.GetInt(path)
+    if err != nil {
+        return defaultVal
+    }
+    return val
+}
+
 func (c *Config) GetUInt(path string) (val uint64, err error) {
     conf, err := c.GetValue(path)
     if err != nil {
@@ -110,6 +134,14 @@ func (c *Config) GetUInt(path string) (val uint64, err error) {
         err = errors.New("not valid uint64: " + path)
     }
     return
+}
+
+func (c *Config) GetDefaultUInt(path string, defaultVal uint64) uint64 {
+    val, err := c.GetUInt(path)
+    if err != nil {
+        return defaultVal
+    }
+    return val
 }
 
 func (c *Config) GetFloat(path string) (val float64, err error) {
@@ -134,6 +166,14 @@ func (c *Config) GetFloat(path string) (val float64, err error) {
     return
 }
 
+func (c *Config) GetDefaultFloat(path string, defaultVal float64) float64 {
+    val, err := c.GetFloat(path)
+    if err != nil {
+        return defaultVal
+    }
+    return val
+}
+
 func (c *Config) GetComplex(path string) (val complex128, err error) {
     conf, err := c.GetValue(path)
     if err != nil {
@@ -156,6 +196,14 @@ func (c *Config) GetComplex(path string) (val complex128, err error) {
     return
 }
 
+func (c *Config) GetDefaultComplex(path string, defaultVal complex128) complex128 {
+    val, err := c.GetComplex(path)
+    if err != nil {
+        return defaultVal
+    }
+    return val
+}
+
 func (c *Config) GetArray(path string) (vals []*Config, err error) {
     conf, err := c.GetValue(path)
     if err != nil {
@@ -174,3 +222,4 @@ func (c *Config) GetArray(path string) (vals []*Config, err error) {
     }
     return
 }
+
