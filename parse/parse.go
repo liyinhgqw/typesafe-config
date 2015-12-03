@@ -5,6 +5,7 @@ import (
     "runtime"
     "strings"
     "strconv"
+    "regexp"
 )
 
 // Tree is the representation of a single parsed template.
@@ -275,7 +276,7 @@ func (t *Tree) parseValue(token item) Node {
             panic(e)
         }
         case itemString:
-        v = t.newString(token.pos, token.val, token.val)
+        v = t.newString(token.pos, token.val, unquoteString(token.val))
         case itemUnquotedText:
         v = t.newString(token.pos, token.val, token.val)
         case itemOpenCurly:
@@ -451,6 +452,15 @@ func isValue(token item) bool {
         return true
     }
     return false
+}
+
+func unquoteString(value string) string {
+    re := regexp.MustCompile("^\"(.*)\"$")
+    if strippedVal := re.FindStringSubmatch(value); strippedVal != nil {
+        return strippedVal[1]
+    } else {
+        return value
+    }
 }
 
 func (t *Tree) checkElementSeparator() bool {
