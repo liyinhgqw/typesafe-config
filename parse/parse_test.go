@@ -106,3 +106,20 @@ func testParse(doCopy bool, t *testing.T) {
 func TestParse(t *testing.T) {
     testParse(false, t)
 }
+
+func TestParseFile(t *testing.T) {
+    var (
+        tree *Tree
+        err  error
+    )
+
+    if tree, err = ParseFile("./test.conf"); err != nil {
+        t.Error("Failed to read ./test.conf:" + err.Error())
+    }
+
+    if val, err := tree.GetConfig().GetInt("section-a.uint"); err != nil || val != 999 {
+        t.Error("Incorrect value")
+    }
+
+
+}

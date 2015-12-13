@@ -6,6 +6,8 @@ import (
     "strings"
     "strconv"
     "regexp"
+    "errors"
+    "io/ioutil"
 )
 
 // Tree is the representation of a single parsed template.
@@ -42,6 +44,22 @@ func Parse(name, text string) (tree *Tree, err error) {
     t := New(name)
     t.text = text
     tree, err = t.Parse(text)
+    return
+}
+
+// Parse from a file path
+func ParseFile(path string) (*Tree, error) {
+    bytes, err := ioutil.ReadFile(path)
+    if err != nil {
+        return nil, errors.New("Failed to read config file")
+    }
+    tree, err := ParseBytes(bytes)
+    return tree, err
+}
+
+// Parse from a byte slice
+func ParseBytes(configFileData []byte) (tree *Tree, err error) {
+    tree, err = Parse("config", string(configFileData))
     return
 }
 
