@@ -1,10 +1,26 @@
 # Typesafe-conf
 
-This project is a Golang version of typesafe config for akka.
+This project is a Golang version of typesafe config (HOCON syntax) for akka.
 
 Can also populate a struct from a config file.
 
 There are 2 ways to use this library, one is via tagging a struct and populating it, the other is manually accessing keys.
+
+### Envs
+ 
+Envs are parsed if they exist (syntax `... = ${SOMEENV}`). They are ignored if they don't exist.
+
+To use an env as an override:
+
+    port = 9999
+    port = ${PORT}
+    
+In this case `9999` will be used if `PORT` is not defined.
+
+### Substitution
+
+WIP.
+
 
 ### Using populate
 
@@ -52,6 +68,5 @@ The following methods exist for manually accessing config values.
  
 ### Roadmap
 
- - Env parsing and with fallback.
  - Reusable sections
  
