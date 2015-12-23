@@ -1,14 +1,16 @@
 package parse
+
 import (
-"reflect"
-"strings"
-	"strconv"
 	"bytes"
 	"fmt"
 	"os"
-	"unicode/utf8"
+	"reflect"
+	"strconv"
+	"strings"
 	"unicode"
+	"unicode/utf8"
 )
+
 // Tries to set fields on a struct using values from a config object.
 //
 // - struct names are dasherized when looking up config name
@@ -170,7 +172,7 @@ func setValue(field reflect.Value, conf *Config, configName string, defaultVal s
 	default:
 	}
 
-	if err != nil && ! strings.HasPrefix(err.Error(), "path not valid:"){
+	if err != nil && !strings.HasPrefix(err.Error(), "path not valid:") {
 		fmt.Fprintf(os.Stderr, "Error reading config from path %s: %s\n", configName, err)
 	}
 
@@ -331,7 +333,7 @@ func setIntVal(field *reflect.Value, conf *Config, bits int, configName string, 
 	return
 }
 
-func setUintVal(field *reflect.Value, conf *Config, bits int, configName string, defaultVal string, hasDefault bool) (err  error ){
+func setUintVal(field *reflect.Value, conf *Config, bits int, configName string, defaultVal string, hasDefault bool) (err error) {
 	var (
 		intVal uint64
 	)

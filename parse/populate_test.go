@@ -1,60 +1,63 @@
 package parse
+
 import (
-	"testing"
 	"fmt"
 	"os"
+	"testing"
 )
 
 type MyConfig struct {
 	SectionA struct {
-				 Int      int `config:"int,-9"` // test the default val
-				 Uint     uint
-				 Int32    int32
-				 Int64    int64
-				 Float32  float32
-				 Float64  float64
-				 GoodEnv  bool
-				 IntEnv  int
-				 BackedupEnv  int
-				 BadInt      int
-				 BadUint     uint
-				 BadInt32    int32
-				 BadInt64    int64
-				 BadFloat32  float32
-				 BadFloat64  float64
-				 BadString   string
+		Int         int `config:"int,-9"` // test the default val
+		Uint        uint
+		Int32       int32
+		Int64       int64
+		Float32     float32
+		Float64     float64
+		GoodEnv     bool
+		IntEnv      int
+		BackedupEnv int
+		ListEnv     []int
+		BadListEnv  []int
+		BadInt      int
+		BadUint     uint
+		BadInt32    int32
+		BadInt64    int64
+		BadFloat32  float32
+		BadFloat64  float64
+		BadString   string
 
-				 Float32Slice []float32
-				 Float64Slice []float64
+		Float32Slice []float32
+		Float64Slice []float64
 
-				 IntSlice []int
-				 Int8Slice []int8
-				 Int16Slice []int16
-				 Int32Slice []int32
-				 Int64Slice []int64
+		IntSlice   []int
+		Int8Slice  []int8
+		Int16Slice []int16
+		Int32Slice []int32
+		Int64Slice []int64
 
-				 UintSlice []uint
-				 Uint8Slice []uint8
-				 Uint16Slice []uint16
-				 Uint32Slice []uint32
-				 Uint64Slice []uint64
-				 SectionB struct {
-							  Int     int
-							  Uint    uint
-							  Int32   int32
-							  Int64   int64
-							  Float32 float32
-							  Float64 float64
-							  BadInt      int
-							  BadUint     uint
-							  BadInt32    int32
-							  BadInt64    int64
-							  BadFloat32  float32
-							  BadFloat64  float64
-							  BadString   string
-							  String  string `config:"strong-string"`  // test the renaming
-						  }
-			 }
+		UintSlice   []uint
+		Uint8Slice  []uint8
+		Uint16Slice []uint16
+		Uint32Slice []uint32
+		Uint64Slice []uint64
+		SectionB    struct {
+			Int        int
+			Uint       uint
+			Int32      int32
+			Int64      int64
+			Float32    float32
+			Float64    float64
+			BadInt     int
+			BadUint    uint
+			BadInt32   int32
+			BadInt64   int64
+			BadFloat32 float32
+			BadFloat64 float64
+			BadString  string
+			String     string `config:"strong-string"` // test the renaming
+		}
+	}
 }
 
 func TestPopulate(t *testing.T) {

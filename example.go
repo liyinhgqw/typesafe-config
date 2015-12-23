@@ -191,16 +191,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	} else {
-        fmt.Println(result.Root)
-        conf := result.GetConfig()
+		fmt.Println(result.Root)
+		conf := result.GetConfig()
 		fmt.Println(conf.GetValue("akka-hbase-persistence-replay-dispatcher.thread-pool-executor.core-pool-size-min"))
-        fmt.Println(conf.GetFloat("akka-hbase-persistence-replay-dispatcher.thread-pool-executor.core-pool-size-min"))
-        fmt.Println(conf.GetBool("akka.actor.debug.receive"))
-        fmt.Println(conf.GetString("akka-hbase-persistence-replay-dispatcher.type"))
-        fmt.Println(conf.GetString("akka.cluster.auto-down-unreachable-after"))
-        fmt.Println(conf.GetValue("akka.cluster.roles"))
-        fmt.Println(conf.GetArray("akka.cluster.roles"))
-        fmt.Println(conf.GetString("akka-hbase-persistence-replay-dispatcher.executor"))
-        fmt.Println(conf.GetFloat("akka-hbase-persistence-replay-dispatcher.thread-pool-executor.core-pool-size-factor"))
-    }
+		fmt.Println(conf.GetFloat("akka-hbase-persistence-replay-dispatcher.thread-pool-executor.core-pool-size-min"))
+		fmt.Println(conf.GetBool("akka.actor.debug.receive"))
+		fmt.Println(conf.GetString("akka-hbase-persistence-replay-dispatcher.type"))
+		fmt.Println(conf.GetString("akka.cluster.auto-down-unreachable-after"))
+		fmt.Println(conf.GetValue("akka.cluster.roles"))
+		fmt.Println(conf.GetArray("akka.cluster.roles"))
+		fmt.Println(conf.GetString("akka-hbase-persistence-replay-dispatcher.executor"))
+		fmt.Println(conf.GetFloat("akka-hbase-persistence-replay-dispatcher.thread-pool-executor.core-pool-size-factor"))
+	}
 }

@@ -355,6 +355,9 @@ Loop:
 						newValue = newValue.withFallback(existing)
 						result.Nodes[key] = newValue
 					}
+					// TODO - do right (array merging etc), absorb for now
+					// in reality this should be different based on ${?..} syntax
+					// also need to do section references
 				} else {
 					result.Nodes[key] = newValue
 				}
@@ -393,6 +396,8 @@ func (t *Tree) parseArray() *ListNode {
 	// invoked just after the OPEN_SQUARE
 	result := t.newList(t.peekNonSpace().pos)
 	switch token := t.nextNonSpaceIgnoreNewline(); {
+	case token.typ == itemSubstitution:
+		//TODO - do right, absorb for now
 	case token.typ == itemCloseSquare:
 		return result
 	case isValue(token) || token.typ == itemOpenCurly || token.typ == itemOpenSquare:
