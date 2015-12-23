@@ -5,6 +5,7 @@ import (
     "strings"
     "unicode"
     "unicode/utf8"
+    "os"
 )
 
 // item represents a token or text string returned from the scanner.
@@ -42,7 +43,7 @@ const (
     itemCloseSquare
     itemNewLine
     itemUnquotedText
-    itemSubStitution
+    itemSubstitution
     itemComment
     itemPlusEquals
     itemString
@@ -214,6 +215,8 @@ func lexNextToken(l *lexer) stateFn {
             l.emit(itemOpenSquare)
         case r == ']':
             l.emit(itemCloseSquare)
+		case r == '$':
+			return lexSubstitution
         case r == '+':
             return lexPlusEquals
         case r == '-' || ('0' <= r && r <= '9'):
@@ -283,6 +286,34 @@ func lexRawQuote(l *lexer) stateFn {
         }
     }
     l.emit(itemString)
+    return lexNextToken
+}
+
+func lexSubstitution(l *lexer) stateFn {
+    if l.next() == '{' {
+        Loop:
+        for {
+            switch r := l.next(); {
+            case isAlphaNumeric(r), r == '.':
+            case r == '}':
+                l.backup()
+                envName := l.input[l.start+2:l.pos]
+                if envVal := os.Getenv(envName); envVal != ""{
+                    l.input = l.input[:l.start] + envVal + l.input[l.pos+1:]
+                    l.reset()
+                } else {
+                    l.next()
+                    //l.input = l.input[:l.start] + "nil" + l.input[l.pos+1:]
+                    l.emit(itemSubstitution)
+                    //l.backup()
+                }
+                break Loop
+            // absorb.
+            default:
+                return l.errorf("variable substitution can only be alpha numeric")
+            }
+        }
+    }
     return lexNextToken
 }
 

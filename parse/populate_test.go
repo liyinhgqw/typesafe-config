@@ -2,6 +2,7 @@ package parse
 import (
 	"testing"
 	"fmt"
+	"os"
 )
 
 type MyConfig struct {
@@ -12,6 +13,9 @@ type MyConfig struct {
 				 Int64    int64
 				 Float32  float32
 				 Float64  float64
+				 GoodEnv  bool
+				 IntEnv  int
+				 BackedupEnv  int
 				 BadInt      int
 				 BadUint     uint
 				 BadInt32    int32
@@ -60,6 +64,8 @@ func TestPopulate(t *testing.T) {
 		err  error
 	)
 
+	os.Setenv("TEST", "true")
+	os.Setenv("TEST-INT", "888")
 	if tree, err = ParseFile("./test.conf"); err != nil {
 		t.Error("Failed to read ./test.conf:" + err.Error())
 	}
@@ -71,7 +77,7 @@ func TestPopulate(t *testing.T) {
 	Populate(testStruct, tree.GetConfig(), "")
 
 	t.Logf("After populate: %+v", testStruct)
-	if fmt.Sprintf("%+v", testStruct) != "&{SectionA:{Int:-9 Uint:999 Int32:-999 Int64:88888 Float32:999.999 Float64:999.999 BadInt:0 BadUint:0 BadInt32:0 BadInt64:0 BadFloat32:0 BadFloat64:0 BadString: Float32Slice:[0.1 2 0.3 4] Float64Slice:[0.1 2 0.3 4] IntSlice:[1 2 3 4] Int8Slice:[1 2 3 4] Int16Slice:[1 2 3 4] Int32Slice:[1 2 3 4] Int64Slice:[1 2 3 4] UintSlice:[1 2 3 4] Uint8Slice:[1 2 3 4] Uint16Slice:[1 2 3 4] Uint32Slice:[1 2 3 4] Uint64Slice:[1 2 3 4] SectionB:{Int:-999 Uint:999 Int32:-999 Int64:999 Float32:999.999 Float64:999.999 BadInt:0 BadUint:0 BadInt32:0 BadInt64:0 BadFloat32:0 BadFloat64:0 BadString: String:lalala}}}" {
+	if fmt.Sprintf("%+v", testStruct) != "&{SectionA:{Int:-9 Uint:999 Int32:-999 Int64:88888 Float32:999.999 Float64:999.999 GoodEnv:true IntEnv:888 BackedupEnv:999 BadInt:0 BadUint:0 BadInt32:0 BadInt64:0 BadFloat32:0 BadFloat64:0 BadString: Float32Slice:[0.1 2 0.3 4] Float64Slice:[0.1 2 0.3 4] IntSlice:[1 2 3 4] Int8Slice:[1 2 3 4] Int16Slice:[1 2 3 4] Int32Slice:[1 2 3 4] Int64Slice:[1 2 3 4] UintSlice:[1 2 3 4] Uint8Slice:[1 2 3 4] Uint16Slice:[1 2 3 4] Uint32Slice:[1 2 3 4] Uint64Slice:[1 2 3 4] SectionB:{Int:-999 Uint:999 Int32:-999 Int64:999 Float32:999.999 Float64:999.999 BadInt:0 BadUint:0 BadInt32:0 BadInt64:0 BadFloat32:0 BadFloat64:0 BadString: String:lalala}}}" {
 		t.Logf("Got: %+v", testStruct)
 		t.Error("Not as expected.")
 	}
