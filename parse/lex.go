@@ -289,30 +289,68 @@ Loop:
 	return lexNextToken
 }
 
-func lexSubstitution(l *lexer) stateFn {
-	if l.next() == '{' {
+func lexIgnoreIfEmptySubstitution(l *lexer) stateFn {
 	Loop:
-		for {
-			switch r := l.next(); {
-			case isAlphaNumeric(r), r == '.':
-			case r == '}':
-				l.backup()
-				envName := l.input[l.start+2 : l.pos]
-				//TODO - in reality this should be differen't based upon ${?SOMEENV}
-				if envVal := os.Getenv(envName); envVal != "" {
-					l.input = l.input[:l.start] + envVal + l.input[l.pos+1:]
-					l.reset()
-				} else {
-					l.next()
-					//l.input = l.input[:l.start] + "nil" + l.input[l.pos+1:]
-					l.emit(itemSubstitution)
-					//l.backup()
-				}
-				break Loop
-			// absorb.
-			default:
-				return l.errorf("variable substitution can only be alpha numeric")
-			}
+	for {
+		switch r := l.next(); {
+		case isAlphaNumeric(r), r == '.':
+		case r == '}':
+			envName := l.input[l.start+3 : l.pos-1]
+			setEnvValue(l, envName, false)
+			break Loop
+		// absorb.
+		default:
+			return l.errorf("variable substitution can only be alpha numeric")
+		}
+	}
+	return lexNextToken
+}
+
+func lexNormalSubstitution(l *lexer) stateFn{
+	Loop:
+	for {
+		switch r := l.next(); {
+		case isAlphaNumeric(r), r == '.':
+		case r == '}':
+			envName := l.input[l.start+2 : l.pos-1]
+			setEnvValue(l, envName, true)
+			break Loop
+		// absorb.
+		default:
+			return l.errorf("variable substitution can only be alpha numeric")
+		}
+	}
+	return lexNextToken
+}
+
+func setEnvValue(l *lexer, envName string, setNil bool) {
+
+	if envVal, found := os.LookupEnv(envName); found {
+		// replace the ${...} with just the value from the env and reset so that it can be
+		// parsed as whatever value it is
+		l.input = l.input[:l.start] + envVal + l.input[l.pos:]
+		l.reset()
+	} else {
+		// set it to nil value
+		if setNil {
+			l.input = l.input[:l.start] + "nil" + l.input[l.pos:]
+			l.reset()
+		} else {
+			l.emit(itemSubstitution)
+		}
+	}
+
+}
+
+func lexSubstitution(l *lexer) stateFn {
+
+	if l.next() == '{' {
+		if l.peek() == '?' {
+			l.next()
+			return lexIgnoreIfEmptySubstitution(l)
+		} else {
+			return lexNormalSubstitution(l)
+
 		}
 	}
 	return lexNextToken

@@ -4,23 +4,6 @@ This project is a (very much incomplete) Golang version of typesafe config (HOCO
 
 There are 2 ways to use this library, one is via tagging a struct and populating it, the other is manually accessing keys.
 
-### Envs
- 
-Envs are parsed if they exist (syntax `... = ${SOMEENV}`). They are ignored if they don't exist.
-
-To use an env as an override:
-
-    port = 9999
-    port = ${PORT}
-    
-In this case `9999` will be used if `PORT` is not defined.
-
-This is not in keeping with HOCON and will be changed to match soon.
-
-### Substitution
-
-WIP.
-
 
 ### Using populate
 
@@ -65,6 +48,25 @@ The following methods exist for manually accessing config values.
  - GetComplex
  - GetDefaultComplex
  - GetArray
+ 
+### Envs
+ 
+Envs are parsed if they exist (syntax `... = ${?SOMEENV}` or `... = ${SOMEENV}`).
+
+To use an env as an override:
+
+    port = 9999
+    port = ${?PORT}
+        
+In this case the variable will not be overridden if `PORT` is not defined.
+
+In contrast
+
+    port = 9999
+    port = ${PORT}
+    
+In this case the variable will be overridden even if `PORT` isn't defined.
+
  
 ### Roadmap
 
