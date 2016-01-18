@@ -356,8 +356,6 @@ Loop:
 						result.Nodes[key] = newValue
 					}
 					// TODO - do right (array merging etc), absorb for now
-					// in reality this should be different based on ${?..} syntax
-					// also need to do section references
 				} else {
 					result.Nodes[key] = newValue
 				}
