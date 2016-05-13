@@ -261,7 +261,7 @@ func (t *Tree) Parse(text string) (tree *Tree, err error) {
 func (t *Tree) parse() (result Node) {
 	switch token := t.nextNonSpaceIgnoreNewline(); token.typ {
 	case itemOpenCurly, itemOpenSquare:
-		result = t.parseValue(token)
+		result = t.parseValue(token, nil, "")
 	default:
 		t.backup()
 		result = t.parseObject(false)
@@ -270,11 +270,37 @@ func (t *Tree) parse() (result Node) {
 	return
 }
 
-func (t *Tree) parseValue(token item) Node {
+func (t *Tree) parseValue(token item, nodes map[string]Node, key string) Node {
 	var v Node
+
+	if nodes != nil {
+		if existingNode, ok := nodes[key]; ok {
+			switch existingNode.Type() {
+			case NodeBool:
+				switch token.typ {
+				case itemUnquotedText:
+				case itemString:
+					token.val = unquoteString(token.val)
+					token.typ = itemBool
+				}
+			case NodeNumber:
+				switch token.typ {
+				case itemUnquotedText:
+				case itemString:
+					token.val = unquoteString(token.val)
+					token.typ = itemNumber
+				}
+			}
+		}
+	}
 	switch token.typ {
 	case itemSubstitution:
 		if token.val[:2] == "${" && token.val[len(token.val)-1] == '}' {
+			if nodes != nil {
+				if existingNode, ok := nodes[key]; ok {
+					v = existingNode.Copy()
+				}
+			}
 		}
 	case itemBool:
 		if boolValue, e := strconv.ParseBool(token.val); e != nil {
@@ -339,7 +365,6 @@ Loop:
 				valueToken = t.nextNonSpaceIgnoreNewline()
 			}
 
-			newValue := t.parseValue(valueToken)
 
 			sepIndex := strings.Index(p, ".")
 			var key, remaining string
@@ -348,6 +373,8 @@ Loop:
 			} else {
 				key, remaining = string(p[:sepIndex]), string(p[sepIndex+1:])
 			}
+
+			newValue := t.parseValue(valueToken, result.Nodes, key)
 
 			if sepIndex == -1 {
 				if existing, ok := result.Nodes[key]; ok {
@@ -399,7 +426,7 @@ func (t *Tree) parseArray() *ListNode {
 	case token.typ == itemCloseSquare:
 		return result
 	case isValue(token) || token.typ == itemOpenCurly || token.typ == itemOpenSquare:
-		v := t.parseValue(token)
+		v := t.parseValue(token, nil, "")
 		result.append(v)
 	default:
 		t.unexpected(token, "ListNode")
@@ -421,7 +448,7 @@ func (t *Tree) parseArray() *ListNode {
 
 		token = t.nextNonSpaceIgnoreNewline()
 		if isValue(token) || token.typ == itemOpenCurly || token.typ == itemOpenSquare {
-			v := t.parseValue(token)
+			v := t.parseValue(token, nil, "")
 			result.append(v)
 		} else if token.typ == itemCloseSquare {
 			// we allow one trailing comma

@@ -1,7 +1,9 @@
 package parse
 
 import "strings"
-import "errors"
+import (
+	"errors"
+)
 
 type Config struct {
 	root Node
