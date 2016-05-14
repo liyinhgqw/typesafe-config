@@ -42,7 +42,9 @@ func (c *Config) GetString(path string) (val string, err error) {
 	if err != nil {
 		return
 	}
-	if conf.root.Type() == NodeString {
+	if conf.root == nil {
+		err = errors.New("not valid path: " + path)
+	} else if conf.root.Type() == NodeString {
 		if cstr, ok := conf.root.(*StringNode); ok {
 			val = cstr.Text
 		} else {

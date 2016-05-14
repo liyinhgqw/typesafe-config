@@ -57,6 +57,7 @@ type MyConfig struct {
 			BadFloat64 float64
 			BadString  string
 			String     string `config:"strong-string"` // test the renaming
+			Sub        string
 		}
 	}
 }

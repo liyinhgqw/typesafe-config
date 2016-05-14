@@ -2,10 +2,10 @@ package parse
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"unicode"
 	"unicode/utf8"
+	"os"
 )
 
 // item represents a token or text string returned from the scanner.
@@ -334,13 +334,7 @@ func setEnvValue(l *lexer, envName string, setNil bool) {
 		l.input = l.input[:l.start] + envVal + l.input[l.pos:]
 		l.reset()
 	} else {
-		// set it to nil value
-		if setNil {
-			l.input = l.input[:l.start] + "nil" + l.input[l.pos:]
-			l.reset()
-		} else {
-			l.emit(itemSubstitution)
-		}
+		l.emit(itemSubstitution)
 	}
 
 }
