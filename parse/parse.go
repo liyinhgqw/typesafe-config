@@ -288,15 +288,12 @@ func (t *Tree) parseValue(token item, path string) Node {
 		if key != "" {
 			if oldVal, ok := t.tmpRoot.Nodes[key]; ok && oldVal != nil {
 				v = oldVal
-			} else {
-				if hardOverride {
-					v = t.newNil(token.pos)
-				}
+			} else if hardOverride {
+				v = t.newNil(token.pos)
 			}
 		} else {
 			// nothing to see here
 			v = t.newNil(token.pos)
-			return v
 		}
 	case itemBool:
 		if boolValue, e := strconv.ParseBool(token.val); e != nil {
