@@ -1,8 +1,8 @@
 package parse
 
-import "strings"
 import (
 	"errors"
+	"strings"
 )
 
 type Config struct {

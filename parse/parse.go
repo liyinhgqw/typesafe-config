@@ -273,31 +273,11 @@ func (t *Tree) parse() (result Node) {
 func (t *Tree) parseValue(token item, nodes map[string]Node, key string) Node {
 	var v Node
 
-	if nodes != nil {
-		if existingNode, ok := nodes[key]; ok {
-			switch existingNode.Type() {
-			case NodeBool:
-				switch token.typ {
-				case itemUnquotedText:
-				case itemString:
-					token.val = unquoteString(token.val)
-					token.typ = itemBool
-				}
-			case NodeNumber:
-				switch token.typ {
-				case itemUnquotedText:
-				case itemString:
-					token.val = unquoteString(token.val)
-					token.typ = itemNumber
-				}
-			}
-		}
-	}
 	switch token.typ {
 	case itemSubstitution:
 		if token.val[:2] == "${" && token.val[len(token.val)-1] == '}' {
 			if nodes != nil {
-				if existingNode, ok := nodes[key]; ok {
+				if existingNode, ok := nodes[key]; ok && existingNode != nil {
 					v = existingNode.Copy()
 				}
 			}
@@ -335,6 +315,7 @@ func (t *Tree) parseValue(token item, nodes map[string]Node, key string) Node {
 	}
 	return v
 }
+
 func (t *Tree) parseObject(hadOpenCurly bool) *MapNode {
 	// invoked just after the OPEN_CURLY (or START, if !hadOpenCurly)
 	result := t.newMap(t.peekNonSpace().pos)

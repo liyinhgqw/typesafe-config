@@ -326,9 +326,12 @@ Loop:
 func setEnvValue(l *lexer, envName string, setNil bool) {
 
 	if envVal, found := os.LookupEnv(envName); found {
+		if strings.ContainsAny(envVal, ":") {
+			envVal = `"` + envVal + `"`
+		}
 		// replace the ${...} with just the value from the env and reset so that it can be
 		// parsed as whatever value it is
-		l.input = l.input[:l.start] + `"` + envVal + `"` + l.input[l.pos:]
+		l.input = l.input[:l.start] + envVal + l.input[l.pos:]
 		l.reset()
 	} else {
 		// set it to nil value
