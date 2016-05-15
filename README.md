@@ -48,6 +48,7 @@ The following methods exist for manually accessing config values.
  - GetComplex
  - GetDefaultComplex
  - GetArray
+
  
 ### Envs
  
@@ -67,6 +68,15 @@ In contrast
     
 In this case the variable will be overridden even if `PORT` isn't defined.
 
+### Substitution
+
+Substitutions (currently only values, not objects) are parsed if they exist (syntax `... = ${?some.path.to.value}` or `... = ${some.path.to.value}`).
+
+
+    earlier-var = 100
+
+    later-var = ${earlier-var}
+    // results in `later-var = 100`
  
 ### Roadmap
 
