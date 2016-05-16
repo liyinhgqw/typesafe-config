@@ -229,18 +229,16 @@ type FieldNode struct {
 	Pos
 	tr    *Tree
 	Ident []string // The identifiers in lexical order.
+	Hard  bool // Whether or not to force nil if value not found
+	Fallback Node
 }
 
-func (t *Tree) newField(pos Pos, ident string) *FieldNode {
-	return &FieldNode{tr: t, NodeType: NodeField, Pos: pos, Ident: strings.Split(ident[1:], ".")} // [1:] to drop leading period
+func (t *Tree) newField(pos Pos, ident string, hard bool) *FieldNode {
+	return &FieldNode{tr: t, NodeType: NodeField, Pos: pos, Ident: strings.Split(ident, "."), Hard: hard}
 }
 
 func (f *FieldNode) String() string {
-	s := ""
-	for _, id := range f.Ident {
-		s += "." + id
-	}
-	return s
+	return strings.Join(f.Ident, ".")
 }
 
 func (f *FieldNode) tree() *Tree {
@@ -248,10 +246,11 @@ func (f *FieldNode) tree() *Tree {
 }
 
 func (f *FieldNode) Copy() Node {
-	return &FieldNode{tr: f.tr, NodeType: NodeField, Pos: f.Pos, Ident: append([]string{}, f.Ident...)}
+	return &FieldNode{tr: f.tr, NodeType: NodeField, Pos: f.Pos, Ident: append([]string{}, f.Ident...), Hard: f.Hard}
 }
 
 func (m *FieldNode) withFallback(other Node) Node {
+	m.Fallback = other
 	return m
 }
 

@@ -46,6 +46,8 @@ var lexTests = []lexTest{
 	{"square", "[a,b]", []item{{itemOpenSquare, 0, "["}, {itemUnquotedText, 0, "a"}, {itemComma, 0, ","}, {itemUnquotedText, 0, "b"}, {itemCloseSquare, 0, "]"}, tEOF}},
 	{"plus equal", "a+=b", []item{{itemUnquotedText, 0, "a"}, {itemPlusEquals, 0, "+="}, {itemUnquotedText, 0, "b"}, tEOF}},
 	{"number", "a=-1.2", []item{{itemUnquotedText, 0, "a"}, {itemEquals, 0, "="}, {itemNumber, 0, "-1.2"}, tEOF}},
+	{"hard substitution", "a=${b}", []item{{itemUnquotedText, 0, "a"}, {itemEquals, 0, "="}, {itemHardSubstitution, 0, "${b}"}, tEOF}},
+	{"soft substitution", "a=${?b}", []item{{itemUnquotedText, 0, "a"}, {itemEquals, 0, "="}, {itemSoftSubstitution, 0, "${?b}"}, tEOF}},
 	{"unquote", "a=-1.2 min", []item{{itemUnquotedText, 0, "a"}, {itemEquals, 0, "="}, {itemNumber, 0, "-1.2"}, {itemSpace, 0, " "}, {itemUnquotedText, 0, "min"}, tEOF}},
 	{"true", "a=true", []item{{itemUnquotedText, 0, "a"}, {itemEquals, 0, "="}, {itemBool, 0, "true"}, tEOF}},
 	{"nil", "a=nil", []item{{itemUnquotedText, 0, "a"}, {itemEquals, 0, "="}, {itemNull, 0, "nil"}, tEOF}},

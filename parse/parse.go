@@ -14,7 +14,6 @@ import (
 type Tree struct {
 	Name      string // name of the template represented by the tree.
 	ParseName string // name of the top-level template during parsing, for error messages.
-	tmpRoot   *MapNode
 	Root      Node   // top-level root of the tree.
 	text      string // text parsed to create the template (or its parent)
 	// Parsing only; cleared after parse.
@@ -251,7 +250,6 @@ func (t *Tree) Parse(text string) (tree *Tree, err error) {
 	t.ParseName = t.Name
 	t.startParse(lex(t.Name, text))
 	t.text = text
-	t.tmpRoot = t.newMap(0)
 	t.Root = t.parse()
 	t.stopParse()
 	return t, nil
@@ -263,38 +261,25 @@ func (t *Tree) Parse(text string) (tree *Tree, err error) {
 func (t *Tree) parse() (result Node) {
 	switch token := t.nextNonSpaceIgnoreNewline(); token.typ {
 	case itemOpenCurly, itemOpenSquare:
-		result = t.parseValue(token, "")
+		result = t.parseValue(token)
 	default:
 		t.backup()
-		result = t.parseObject(false, "")
+		result = t.parseObject(false)
 	}
 	t.expect(itemEOF, "EOF")
 	return
 }
 
-func (t *Tree) parseValue(token item, path string) Node {
+func (t *Tree) parseValue(token item) Node {
 	var v Node
 
 	switch token.typ {
-	case itemSubstitution:
-		key := ""
-		hardOverride := false
-		if token.val[:3] == "${?" && token.val[len(token.val)-1] == '}' {
-			key = token.val[3: len(token.val) - 1]
-		} else if token.val[:2] == "${" && token.val[len(token.val)-1] == '}' {
-			key = token.val[2: len(token.val) - 1]
-			hardOverride = true
-		}
-		if key != "" {
-			if oldVal, ok := t.tmpRoot.Nodes[key]; ok && oldVal != nil {
-				v = oldVal
-			} else if hardOverride {
-				v = t.newNil(token.pos)
-			}
-		} else {
-			// nothing to see here
-			v = t.newNil(token.pos)
-		}
+	case itemHardSubstitution:
+		key := token.val[2: len(token.val) - 1]
+		v = t.newField(token.pos, key, true)
+	case itemSoftSubstitution:
+		key := token.val[3: len(token.val) - 1]
+		v = t.newField(token.pos, key, false)
 	case itemBool:
 		if boolValue, e := strconv.ParseBool(token.val); e != nil {
 			if token.val == "on" {
@@ -320,18 +305,17 @@ func (t *Tree) parseValue(token item, path string) Node {
 	case itemUnquotedText:
 		v = t.newString(token.pos, token.val, token.val)
 	case itemOpenCurly:
-		v = t.parseObject(true, path)
+		v = t.parseObject(true)
 	case itemOpenSquare:
-		v = t.parseArray(path)
+		v = t.parseArray()
 	default:
 		t.unexpected(token, "parse value")
 	}
 
-	t.tmpRoot.put(path, v)
 	return v
 }
 
-func (t *Tree) parseObject(hadOpenCurly bool, path string) *MapNode {
+func (t *Tree) parseObject(hadOpenCurly bool) *MapNode {
 	// invoked just after the OPEN_CURLY (or START, if !hadOpenCurly)
 	result := t.newMap(t.peekNonSpace().pos)
 Loop:
@@ -370,11 +354,7 @@ Loop:
 				key, remaining = string(p[:sepIndex]), string(p[sepIndex+1:])
 			}
 
-			newPath := key
-			if path != "" {
-				newPath = path + "." + key
-			}
-			newValue := t.parseValue(valueToken, newPath)
+			newValue := t.parseValue(valueToken)
 
 			if sepIndex == -1 {
 				if existing, ok := result.Nodes[key]; ok {
@@ -418,16 +398,15 @@ Loop:
 	return result
 }
 
-func (t *Tree) parseArray(path string) *ListNode {
+func (t *Tree) parseArray() *ListNode {
 	// invoked just after the OPEN_SQUARE
 	result := t.newList(t.peekNonSpace().pos)
 	switch token := t.nextNonSpaceIgnoreNewline(); {
-	case token.typ == itemSubstitution:
 		//TODO - do right, absorb for now
 	case token.typ == itemCloseSquare:
 		return result
-	case isValue(token) || token.typ == itemOpenCurly || token.typ == itemOpenSquare:
-		v := t.parseValue(token, path)
+	case isValue(token) || token.typ == itemOpenCurly || token.typ == itemOpenSquare || token.typ == itemSoftSubstitution || token.typ == itemHardSubstitution:
+		v := t.parseValue(token)
 		result.append(v)
 	default:
 		t.unexpected(token, "ListNode")
@@ -449,7 +428,7 @@ func (t *Tree) parseArray(path string) *ListNode {
 
 		token = t.nextNonSpaceIgnoreNewline()
 		if isValue(token) || token.typ == itemOpenCurly || token.typ == itemOpenSquare {
-			v := t.parseValue(token, path)
+			v := t.parseValue(token)
 			result.append(v)
 		} else if token.typ == itemCloseSquare {
 			// we allow one trailing comma

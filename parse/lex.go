@@ -43,7 +43,8 @@ const (
 	itemCloseSquare
 	itemNewLine
 	itemUnquotedText
-	itemSubstitution
+	itemHardSubstitution
+	itemSoftSubstitution
 	itemComment
 	itemPlusEquals
 	itemString
@@ -295,8 +296,9 @@ Loop:
 		switch r := l.next(); {
 		case isAlphaNumeric(r), r == '.', r == '_', r == '-':
 		case r == '}':
-			envName := l.input[l.start+3 : l.pos-1]
-			setEnvValue(l, envName, false)
+			l.emit(itemSoftSubstitution)
+			//envName := l.input[l.start+3 : l.pos-1]
+			//setEnvValue(l, envName, false)
 			break Loop
 		// absorb.
 		default:
@@ -312,8 +314,9 @@ Loop:
 		switch r := l.next(); {
 		case isAlphaNumeric(r), r == '.', r == '_', r == '-':
 		case r == '}':
-			envName := l.input[l.start+2 : l.pos-1]
-			setEnvValue(l, envName, true)
+			l.emit(itemHardSubstitution)
+			//envName := l.input[l.start+2 : l.pos-1]
+			//setEnvValue(l, envName, true)
 			break Loop
 		// absorb.
 		default:
@@ -334,7 +337,11 @@ func setEnvValue(l *lexer, envName string, setNil bool) {
 		l.input = l.input[:l.start] + envVal + l.input[l.pos:]
 		l.reset()
 	} else {
-		l.emit(itemSubstitution)
+		if setNil {
+			l.emit(itemHardSubstitution)
+		} else {
+			l.emit(itemSoftSubstitution)
+		}
 	}
 
 }

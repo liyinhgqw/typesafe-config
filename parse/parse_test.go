@@ -117,8 +117,10 @@ func TestParseFile(t *testing.T) {
 		t.Error("Failed to read ./test.conf:" + err.Error())
 	}
 
-	if val, err := tree.GetConfig().GetInt("section-a.uint"); err != nil || val != 999 {
-		t.Error("Incorrect value")
+	if val, err := tree.GetConfig().GetInt("section-a.uint"); err != nil {
+		t.Fatal(err)
+	} else if val != 999 {
+		t.Fatal("Incorrect value")
 	}
 
 }
