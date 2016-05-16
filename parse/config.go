@@ -41,6 +41,8 @@ func (c *Config) GetValue(path string) (conf *Config, err error) {
 							n = cfg.root
 						} else if envV, ok := os.LookupEnv(fNode.String()); ok {
 							n = &StringNode{Quoted: envV, NodeType: NodeString, Text: unquoteString(envV)}
+						} else if fNode.Hard {
+							n = &NilNode{NodeType: NodeNil}
 						} else if fNode.Fallback != nil {
 							n = fNode.Fallback
 						} else {
@@ -287,6 +289,8 @@ func (c *Config) GetArray(path string) (vals []*Config, err error) {
 							n = cfg.root
 						} else if envV, ok := os.LookupEnv(fNode.String()); ok {
 							n = &StringNode{Quoted: envV, NodeType: NodeString, Text: unquoteString(envV)}
+						} else if fNode.Hard {
+							n = &NilNode{NodeType: NodeNil}
 						} else if fNode.Fallback != nil {
 							n = fNode.Fallback
 						} else {
