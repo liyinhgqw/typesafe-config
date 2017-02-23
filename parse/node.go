@@ -5,6 +5,7 @@ import (
     "fmt"
     "strconv"
     "strings"
+    "sort"
 )
 
 var textFormat = "%s" // Changed to "%q" in tests for better error messages.
@@ -78,7 +79,13 @@ func (m *MapNode) tree() *Tree {
 
 func (m *MapNode) String() string {
     b := new(bytes.Buffer)
-    for k, n := range m.Nodes {
+    keys := []string{}
+    for k, _ := range m.Nodes {
+        keys = append(keys, k)
+    }
+    sort.Strings(keys)
+    for _, k := range keys {
+        n := m.Nodes[k]
         fmt.Fprint(b, k, " = (", n, ")")
     }
     return b.String()
