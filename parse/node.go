@@ -227,9 +227,9 @@ func (m *NilNode) withFallback(other Node) Node {
 type FieldNode struct {
 	NodeType
 	Pos
-	tr    *Tree
-	Ident []string // The identifiers in lexical order.
-	Hard  bool // Whether or not to force nil if value not found
+	tr       *Tree
+	Ident    []string // The identifiers in lexical order.
+	Hard     bool     // Whether or not to force nil if value not found
 	Fallback Node
 }
 

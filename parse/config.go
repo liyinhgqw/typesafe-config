@@ -2,10 +2,10 @@ package parse
 
 import (
 	"errors"
-	"strings"
+	"fmt"
 	"os"
 	"strconv"
-	"fmt"
+	"strings"
 )
 
 type Config struct {
@@ -21,7 +21,7 @@ func (c *Config) GetValue(path string) (conf *Config, err error) {
 		v := c.root
 		for i := 0; i < len(ps); i++ {
 			key := ps[i]
-			if v.Type() == NodeMap{
+			if v.Type() == NodeMap {
 				node, _ := v.(*MapNode)
 
 				n, ok := node.Nodes[key]
@@ -33,7 +33,7 @@ func (c *Config) GetValue(path string) (conf *Config, err error) {
 				for {
 					if n.Type() == NodeField {
 						fNode, ok := n.(*FieldNode)
-						if ! ok {
+						if !ok {
 							err = errors.New("invalid field node: " + key)
 							return
 						}
@@ -106,7 +106,7 @@ func (c *Config) GetBool(path string) (val bool, err error) {
 		}
 	} else if conf.root.Type() == NodeString {
 		if cstring, ok := conf.root.(*StringNode); ok {
-			val, err  = strconv.ParseBool(cstring.Text)
+			val, err = strconv.ParseBool(cstring.Text)
 		} else {
 			err = errors.New("not valid bool: " + cstring.String())
 		}
@@ -142,7 +142,7 @@ func (c *Config) GetInt(path string) (val int64, err error) {
 		}
 	} else if conf.root.Type() == NodeString {
 		if cstring, ok := conf.root.(*StringNode); ok {
-			val, err  = strconv.ParseInt(cstring.Text,0,64)
+			val, err = strconv.ParseInt(cstring.Text, 0, 64)
 		} else {
 			err = errors.New("not valid int64: " + cstring.String())
 		}
@@ -178,7 +178,7 @@ func (c *Config) GetUInt(path string) (val uint64, err error) {
 		}
 	} else if conf.root.Type() == NodeString {
 		if cstring, ok := conf.root.(*StringNode); ok {
-			val, err  = strconv.ParseUint(cstring.Text,0,64)
+			val, err = strconv.ParseUint(cstring.Text, 0, 64)
 		} else {
 			err = errors.New("not valid uint64: " + cstring.String())
 		}
@@ -214,7 +214,7 @@ func (c *Config) GetFloat(path string) (val float64, err error) {
 		}
 	} else if conf.root.Type() == NodeString {
 		if cstring, ok := conf.root.(*StringNode); ok {
-			val, err  = strconv.ParseFloat(cstring.Text, 64)
+			val, err = strconv.ParseFloat(cstring.Text, 64)
 		} else {
 			err = errors.New("not valid float64: " + cstring.String())
 		}
@@ -281,7 +281,7 @@ func (c *Config) GetArray(path string) (vals []*Config, err error) {
 				for {
 					if n.Type() == NodeField {
 						fNode, ok := n.(*FieldNode)
-						if ! ok {
+						if !ok {
 							err = errors.New(fmt.Sprintf("invalid list node: %s[%d]", path, ind))
 							return
 						}

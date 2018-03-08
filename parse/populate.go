@@ -74,7 +74,7 @@ func setValue(field reflect.Value, conf *Config, configName string, defaultVal s
 	var err error
 
 	if field.Kind() != reflect.Ptr {
-		panic("Not a pointer value " + field.Kind().String())
+		panic("Not a pointer value: " + field.Kind().String())
 	}
 
 	field = reflect.Indirect(field)
@@ -87,7 +87,6 @@ func setValue(field reflect.Value, conf *Config, configName string, defaultVal s
 
 		for i := 0; i < field.NumField(); i++ {
 			configFieldName, defaultVal, hasDefault := configFieldNamer(itemType.Field(i), configName)
-
 			setValue(field.Field(i).Addr(), conf, configFieldName, defaultVal, hasDefault)
 		}
 	case reflect.Bool:
@@ -184,35 +183,8 @@ func setSliceVal(field *reflect.Value, conf *Config, configName string) {
 		return
 	}
 
-	var newSlice reflect.Value
-	switch field.Type().Elem().Kind() {
-	case reflect.String:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]string{}), 0, 0)
-	case reflect.Float32:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]float32{}), 0, 0)
-	case reflect.Float64:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]float64{}), 0, 0)
-	case reflect.Int:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]int{}), 0, 0)
-	case reflect.Int8:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]int8{}), 0, 0)
-	case reflect.Int16:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]int16{}), 0, 0)
-	case reflect.Int32:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]int32{}), 0, 0)
-	case reflect.Int64:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]int64{}), 0, 0)
-	case reflect.Uint:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]uint{}), 0, 0)
-	case reflect.Uint8:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]uint8{}), 0, 0)
-	case reflect.Uint16:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]uint16{}), 0, 0)
-	case reflect.Uint32:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]uint32{}), 0, 0)
-	case reflect.Uint64:
-		newSlice = reflect.MakeSlice(reflect.TypeOf([]uint64{}), 0, 0)
-	}
+	var newSlice = reflect.MakeSlice(field.Type(), 0, 0)
+
 	for i, item := range confArr {
 		switch field.Type().Elem().Kind() {
 		case reflect.Float32:
@@ -306,8 +278,19 @@ func setSliceVal(field *reflect.Value, conf *Config, configName string) {
 			} else {
 				newSlice = reflect.Append(newSlice, reflect.ValueOf(uint64(val)))
 			}
+		case reflect.Struct:
+			newF := reflect.New(field.Type().Elem())
+			setValue(newF, item, "", "", false)
+			newSlice = reflect.Append(newSlice, newF.Elem())
+		case reflect.Ptr:
+			originalValue := field.Type().Elem()
+			copy := reflect.New(field.Type().Elem()).Elem()
+			// Allocate a new object and set the pointer to it
+			copy.Set(reflect.New(originalValue.Elem()))
+			setValue(copy, item, "", "", false)
+			newSlice = reflect.Append(newSlice, copy.Elem().Addr())
 		default:
-			fmt.Println(field.Type().Elem().Kind())
+			//fmt.Println(field.Type().Elem().Kind())
 
 		}
 	}

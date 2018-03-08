@@ -2,10 +2,10 @@ package parse
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"unicode"
 	"unicode/utf8"
-	"os"
 )
 
 // item represents a token or text string returned from the scanner.

@@ -8,26 +8,26 @@ import (
 
 type MyConfig struct {
 	SectionA struct {
-		Int         int `config:"int,-9"` // test the default val
-		Uint        uint
-		Int32       int32
-		Int64       int64
-		Float32     float32
-		Float64     float64
-		GoodEnv     bool
-		IntEnv      int
-		SpecialCharEnv string
-		BackedupEnv int
+		Int             int `config:"int,-9"` // test the default val
+		Uint            uint
+		Int32           int32
+		Int64           int64
+		Float32         float32
+		Float64         float64
+		GoodEnv         bool
+		IntEnv          int
+		SpecialCharEnv  string
+		BackedupEnv     int
 		HardBackedupEnv int
-		ListEnv     []int
-		BadListEnv  []int
-		BadInt      int
-		BadUint     uint
-		BadInt32    int32
-		BadInt64    int64
-		BadFloat32  float32
-		BadFloat64  float64
-		BadString   string
+		ListEnv         []int
+		BadListEnv      []int
+		BadInt          int
+		BadUint         uint
+		BadInt32        int32
+		BadInt64        int64
+		BadFloat32      float32
+		BadFloat64      float64
+		BadString       string
 
 		Float32Slice []float32
 		Float64Slice []float64

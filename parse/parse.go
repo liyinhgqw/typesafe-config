@@ -275,10 +275,10 @@ func (t *Tree) parseValue(token item) Node {
 
 	switch token.typ {
 	case itemHardSubstitution:
-		key := token.val[2: len(token.val) - 1]
+		key := token.val[2 : len(token.val)-1]
 		v = t.newField(token.pos, key, true)
 	case itemSoftSubstitution:
-		key := token.val[3: len(token.val) - 1]
+		key := token.val[3 : len(token.val)-1]
 		v = t.newField(token.pos, key, false)
 	case itemBool:
 		if boolValue, e := strconv.ParseBool(token.val); e != nil {
@@ -345,7 +345,6 @@ Loop:
 				valueToken = t.nextNonSpaceIgnoreNewline()
 			}
 
-
 			sepIndex := strings.Index(p, ".")
 			var key, remaining string
 			if sepIndex == -1 {
@@ -402,7 +401,7 @@ func (t *Tree) parseArray() *ListNode {
 	// invoked just after the OPEN_SQUARE
 	result := t.newList(t.peekNonSpace().pos)
 	switch token := t.nextNonSpaceIgnoreNewline(); {
-		//TODO - do right, absorb for now
+	//TODO - do right, absorb for now
 	case token.typ == itemCloseSquare:
 		return result
 	case isValue(token) || token.typ == itemOpenCurly || token.typ == itemOpenSquare || token.typ == itemSoftSubstitution || token.typ == itemHardSubstitution:

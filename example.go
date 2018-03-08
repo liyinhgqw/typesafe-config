@@ -1,7 +1,7 @@
 package main
 
 import "fmt"
-import "github.com/liyinhgqw/typesafe-config/parse"
+import "github.com/byrnedo/typesafe-config/parse"
 
 var input string = `
 akka {
