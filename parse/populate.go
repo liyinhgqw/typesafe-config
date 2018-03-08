@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 )
@@ -81,94 +82,119 @@ func setValue(field reflect.Value, conf *Config, configName string, defaultVal s
 	if !field.CanSet() {
 		return
 	}
-	switch field.Kind() {
-	case reflect.Struct:
-		itemType := reflect.TypeOf(field.Interface())
 
-		for i := 0; i < field.NumField(); i++ {
-			configFieldName, defaultVal, hasDefault := configFieldNamer(itemType.Field(i), configName)
-			setValue(field.Field(i).Addr(), conf, configFieldName, defaultVal, hasDefault)
-		}
-	case reflect.Bool:
-		var boolVal bool
-		if hasDefault {
-			defaultBool, _ := strconv.ParseBool(defaultVal)
-			boolVal = conf.GetDefaultBool(configName, defaultBool)
-		} else {
-			boolVal, err = conf.GetBool(configName)
-		}
-		if err == nil {
-			field.SetBool(boolVal)
-		}
-	case reflect.String:
-		var strVal string
-		if hasDefault {
-			strVal = conf.GetDefaultString(configName, defaultVal)
-		} else {
-			strVal, err = conf.GetString(configName)
-		}
-		if err == nil {
-			field.SetString(strVal)
-		}
-	case reflect.Int:
-		var intVal int64
-		if hasDefault {
-			defaultInt, _ := strconv.Atoi(defaultVal)
-			intVal = conf.GetDefaultInt(configName, int64(defaultInt))
-		} else {
-			intVal, err = conf.GetInt(configName)
-		}
-		if err == nil {
-			field.SetInt(intVal)
-		}
-	case reflect.Int8:
-		err = setIntVal(&field, conf, 8, configName, defaultVal, hasDefault)
-	case reflect.Int16:
-		err = setIntVal(&field, conf, 16, configName, defaultVal, hasDefault)
-	case reflect.Int32:
-		err = setIntVal(&field, conf, 32, configName, defaultVal, hasDefault)
-	case reflect.Int64:
-		err = setIntVal(&field, conf, 64, configName, defaultVal, hasDefault)
-	case reflect.Uint:
-		var uintVal uint64
-		if hasDefault {
-			defaultInt, _ := strconv.Atoi(defaultVal)
-			uintVal = conf.GetDefaultUInt(configName, uint64(defaultInt))
-		} else {
-			uintVal, err = conf.GetUInt(configName)
+	var (
+		duration  time.Duration
+		foundType bool
+	)
 
+	switch field.Type() {
+	case reflect.TypeOf(duration):
+		foundType = true
+
+		var durVal time.Duration
+		if hasDefault {
+			defaultDur, _ := time.ParseDuration(defaultVal)
+			durVal = conf.GetDefaultDuration(configName, defaultDur)
+		} else {
+			durVal, err = conf.GetDuration(configName)
 		}
 		if err == nil {
-			field.SetUint(uintVal)
+			field.Set(reflect.ValueOf(durVal))
 		}
-	case reflect.Uint8:
-		err = setUintVal(&field, conf, 8, configName, defaultVal, hasDefault)
-	case reflect.Uint16:
-		err = setUintVal(&field, conf, 16, configName, defaultVal, hasDefault)
-	case reflect.Uint32:
-		err = setUintVal(&field, conf, 32, configName, defaultVal, hasDefault)
-	case reflect.Uint64:
-		err = setUintVal(&field, conf, 64, configName, defaultVal, hasDefault)
-	case reflect.Float32, reflect.Float64:
-		var floatVal float64
-		if hasDefault {
-			var bits int
-			if field.Kind() == reflect.Float32 {
-				bits = 32
-			} else {
-				bits = 64
+
+	}
+
+	if foundType == false {
+		switch field.Kind() {
+		case reflect.Struct:
+			itemType := reflect.TypeOf(field.Interface())
+
+			for i := 0; i < field.NumField(); i++ {
+				configFieldName, defaultVal, hasDefault := configFieldNamer(itemType.Field(i), configName)
+				setValue(field.Field(i).Addr(), conf, configFieldName, defaultVal, hasDefault)
 			}
-			defaultFloat, _ := strconv.ParseFloat(defaultVal, bits)
-			floatVal = conf.GetDefaultFloat(configName, defaultFloat)
-		} else {
-			floatVal, err = conf.GetFloat(configName)
+		case reflect.Bool:
+			var boolVal bool
+			if hasDefault {
+				defaultBool, _ := strconv.ParseBool(defaultVal)
+				boolVal = conf.GetDefaultBool(configName, defaultBool)
+			} else {
+				boolVal, err = conf.GetBool(configName)
+			}
+			if err == nil {
+				field.SetBool(boolVal)
+			}
+		case reflect.String:
+			var strVal string
+			if hasDefault {
+				strVal = conf.GetDefaultString(configName, defaultVal)
+			} else {
+				strVal, err = conf.GetString(configName)
+			}
+			if err == nil {
+				field.SetString(strVal)
+			}
+		case reflect.Int:
+			var intVal int64
+			if hasDefault {
+				defaultInt, _ := strconv.Atoi(defaultVal)
+				intVal = conf.GetDefaultInt(configName, int64(defaultInt))
+			} else {
+				intVal, err = conf.GetInt(configName)
+			}
+			if err == nil {
+				field.SetInt(intVal)
+			}
+		case reflect.Int8:
+			err = setIntVal(&field, conf, 8, configName, defaultVal, hasDefault)
+		case reflect.Int16:
+			err = setIntVal(&field, conf, 16, configName, defaultVal, hasDefault)
+		case reflect.Int32:
+			err = setIntVal(&field, conf, 32, configName, defaultVal, hasDefault)
+		case reflect.Int64:
+			err = setIntVal(&field, conf, 64, configName, defaultVal, hasDefault)
+		case reflect.Uint:
+			var uintVal uint64
+			if hasDefault {
+				defaultInt, _ := strconv.Atoi(defaultVal)
+				uintVal = conf.GetDefaultUInt(configName, uint64(defaultInt))
+			} else {
+				uintVal, err = conf.GetUInt(configName)
+
+			}
+			if err == nil {
+				field.SetUint(uintVal)
+			}
+		case reflect.Uint8:
+			err = setUintVal(&field, conf, 8, configName, defaultVal, hasDefault)
+		case reflect.Uint16:
+			err = setUintVal(&field, conf, 16, configName, defaultVal, hasDefault)
+		case reflect.Uint32:
+			err = setUintVal(&field, conf, 32, configName, defaultVal, hasDefault)
+		case reflect.Uint64:
+			err = setUintVal(&field, conf, 64, configName, defaultVal, hasDefault)
+		case reflect.Float32, reflect.Float64:
+			var floatVal float64
+			if hasDefault {
+				var bits int
+				if field.Kind() == reflect.Float32 {
+					bits = 32
+				} else {
+					bits = 64
+				}
+				defaultFloat, _ := strconv.ParseFloat(defaultVal, bits)
+				floatVal = conf.GetDefaultFloat(configName, defaultFloat)
+			} else {
+				floatVal, err = conf.GetFloat(configName)
+			}
+			if err == nil {
+				field.SetFloat(floatVal)
+			}
+		case reflect.Slice:
+			setSliceVal(&field, conf, configName)
+		default:
 		}
-		if err == nil {
-			field.SetFloat(floatVal)
-		}
-	case reflect.Slice:
-		setSliceVal(&field, conf, configName)
-	default:
 	}
 
 	if err != nil && !strings.HasPrefix(err.Error(), "path not valid:") {

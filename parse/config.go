@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
+	"unicode"
 )
 
 type Config struct {
@@ -86,6 +88,40 @@ func (c *Config) GetString(path string) (val string, err error) {
 
 func (c *Config) GetDefaultString(path string, defaultVal string) string {
 	val, err := c.GetString(path)
+	if err != nil {
+		return defaultVal
+	}
+	return val
+}
+
+func stripSpaces(str string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsSpace(r) {
+			// if the character is a space, drop it
+			return -1
+		}
+		// else keep it in the string
+		return r
+	}, str)
+}
+
+func (c *Config) GetDuration(path string) (val time.Duration, err error) {
+	str, err := c.GetString(path)
+	if err != nil {
+		return 0, err
+	}
+
+	str = stripSpaces(str)
+	if len(str) == 0 {
+		return
+	}
+
+	val, err = time.ParseDuration(str)
+	return
+}
+
+func (c *Config) GetDefaultDuration(path string, defaultVal time.Duration) time.Duration {
+	val, err := c.GetDuration(path)
 	if err != nil {
 		return defaultVal
 	}
