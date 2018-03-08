@@ -48,6 +48,8 @@ The following methods exist for manually accessing config values.
  - GetComplex
  - GetDefaultComplex
  - GetArray
+ - GetDuration
+ - GetDefaultDuration
 
  
 ### Envs
