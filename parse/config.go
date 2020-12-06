@@ -1,6 +1,7 @@
 package parse
 import "strings"
 import "errors"
+import "fmt"
 
 type Config struct {
     root Node
@@ -28,6 +29,39 @@ func (c *Config) GetValue(path string) (conf *Config, err error) {
         conf = &Config{root: v}
         return
     }
+}
+
+func (c *Config) GetKeySet (path string) (keySet []string, err error) {
+	// Get the Config node from which to get keys
+	// Assume the given node
+	keySource := c.root
+
+	// if given a non-empty path, go to that node
+	if (len([]rune(path)) > 0) {
+		node, err2 := c.GetValue(path)
+		if (nil != err2) {
+			err = err2
+			return
+		}
+		keySource = node.root
+	}
+
+	// Make sure the node we've found is of the correct type
+	if (keySource.Type() != NodeMap) {
+		err = fmt.Errorf("Node is not a map [%s]", keySource.Type())
+		return
+	}
+
+	// Get all keys from this node
+	sourceMap, _ := keySource.(*MapNode)
+	keySet = make([]string, len(sourceMap.Nodes))
+	i := 0
+	for k := range sourceMap.Nodes {
+		keySet[i] = k
+		i++
+	}
+
+	return
 }
 
 func (c *Config) String() string {
