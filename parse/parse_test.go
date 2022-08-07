@@ -69,7 +69,7 @@ var parseTests = []parseTest{
             arr = [true, false]
         }`,
 		noError,
-		`akka = (count = (10)arr = (truefalse))`},
+		`akka = (arr = (truefalse)count = (10))`},
 }
 
 func testParse(doCopy bool, t *testing.T) {

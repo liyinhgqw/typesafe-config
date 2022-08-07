@@ -73,6 +73,7 @@ func TestPopulate(t *testing.T) {
 	os.Setenv("TEST", "true")
 	os.Setenv("TEST-INT", "888")
 	os.Setenv("SPECIAL_CHAR_TEST", "mongodb://user:pass@test/fkj")
+	os.Setenv("QUOTE_ENV", "'mongodb://user:pass@test/fkj'")
 	if tree, err = ParseFile("./test.conf"); err != nil {
 		t.Error("Failed to read ./test.conf:" + err.Error())
 	}

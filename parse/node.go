@@ -3,6 +3,7 @@ package parse
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -78,8 +79,23 @@ func (m *MapNode) tree() *Tree {
 
 func (m *MapNode) String() string {
 	b := new(bytes.Buffer)
+
+	type keyedNode struct {
+		key  string
+		node Node
+	}
+
+	var kns []keyedNode
 	for k, n := range m.Nodes {
-		fmt.Fprint(b, k, " = (", n, ")")
+		kns = append(kns, keyedNode{key: k, node: n})
+	}
+
+	sort.Slice(kns, func(i int, j int) bool {
+		return kns[i].key < kns[j].key
+	})
+
+	for _, kn := range kns {
+		fmt.Fprint(b, kn.key, " = (", kn.node, ")")
 	}
 	return b.String()
 }
