@@ -2,7 +2,6 @@ package parse
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -326,25 +325,25 @@ Loop:
 	return lexNextToken
 }
 
-func setEnvValue(l *lexer, envName string, setNil bool) {
-
-	if envVal, found := os.LookupEnv(envName); found {
-		if strings.ContainsAny(envVal, ":") {
-			envVal = `"` + envVal + `"`
-		}
-		// replace the ${...} with just the value from the env and reset so that it can be
-		// parsed as whatever value it is
-		l.input = l.input[:l.start] + envVal + l.input[l.pos:]
-		l.reset()
-	} else {
-		if setNil {
-			l.emit(itemHardSubstitution)
-		} else {
-			l.emit(itemSoftSubstitution)
-		}
-	}
-
-}
+//func setEnvValue(l *lexer, envName string, setNil bool) {
+//
+//	if envVal, found := os.LookupEnv(envName); found {
+//		if strings.ContainsAny(envVal, ":") {
+//			envVal = `"` + envVal + `"`
+//		}
+//		// replace the ${...} with just the value from the env and reset so that it can be
+//		// parsed as whatever value it is
+//		l.input = l.input[:l.start] + envVal + l.input[l.pos:]
+//		l.reset()
+//	} else {
+//		if setNil {
+//			l.emit(itemHardSubstitution)
+//		} else {
+//			l.emit(itemSoftSubstitution)
+//		}
+//	}
+//
+//}
 
 func lexSubstitution(l *lexer) stateFn {
 

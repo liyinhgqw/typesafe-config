@@ -133,12 +133,14 @@ func (t *Tree) nextNonSpace() (token item) {
 func (t *Tree) peekNonSpace() (token item) {
 	for {
 		token = t.next()
-		if token.typ != itemSpace || token.typ != itemNewLine {
-			break
+		switch token.typ {
+		case itemSpace, itemNewLine:
+			continue
+		default:
+			t.backup()
+			return token
 		}
 	}
-	t.backup()
-	return token
 }
 
 // Parsing.
@@ -487,9 +489,10 @@ func isValue(token item) bool {
 	return false
 }
 
+var quoteRegex = regexp.MustCompile(`^["'](.*)["']$`)
+
 func unquoteString(value string) string {
-	re := regexp.MustCompile("^\"(.*)\"$")
-	if strippedVal := re.FindStringSubmatch(value); strippedVal != nil {
+	if strippedVal := quoteRegex.FindStringSubmatch(value); strippedVal != nil {
 		return strippedVal[1]
 	} else {
 		return value
